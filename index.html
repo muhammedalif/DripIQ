@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#0f2447"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="DripIQ"/>
+  <meta name="description" content="ICU Infusion Rate Calculator for medical professionals"/>
+  <title>DripIQ — ICU Infusion Calculator</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --navy:    #0f2447;
+      --blue:    #1a3a6e;
+      --accent:  #00b4d8;
+      --bright:  #00e5ff;
+      --green:   #00e676;
+      --amber:   #ffab40;
+      --red:     #ff5252;
+      --surface: #162040;
+      --card:    #1e2d50;
+      --border:  rgba(0,180,216,0.18);
+      --text:    #e8f4fd;
+      --muted:   #7fa8c9;
+      --white:   #ffffff;
+      --font-ui: 'DM Sans', sans-serif;
+      --font-num:'Space Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: var(--font-ui);
+      background: var(--navy);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      overflow-x: hidden;
+    }
+
+    /* ── BACKGROUND MESH ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(0,180,216,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 80% 80%, rgba(26,58,110,0.6) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(15,36,71,0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .header-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--blue));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+      box-shadow: 0 0 16px rgba(0,180,216,0.4);
+    }
+    .header-text h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+    .header-text p  { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .header-badge {
+      margin-left: auto;
+      font-size: 10px; font-weight: 600;
+      background: rgba(0,180,216,0.15);
+      border: 1px solid rgba(0,180,216,0.3);
+      color: var(--accent);
+      padding: 4px 10px; border-radius: 20px;
+    }
+
+    /* ── NAV TABS ── */
+    .nav {
+      display: flex;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 69px; z-index: 99;
+    }
+    .nav-tab {
+      flex: 1; padding: 13px 8px;
+      text-align: center; font-size: 12px; font-weight: 600;
+      color: var(--muted); cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s; letter-spacing: 0.3px;
+      user-select: none;
+    }
+    .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .nav-tab span { display: block; font-size: 18px; margin-bottom: 2px; }
+
+    /* ── PAGES ── */
+    .page { display: none; padding: 16px; position: relative; z-index: 1; }
+    .page.active { display: block; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .card-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    /* ── FORM ELEMENTS ── */
+    label {
+      display: block; font-size: 12px; font-weight: 600;
+      color: var(--muted); margin-bottom: 6px; letter-spacing: 0.3px;
+    }
+    select, input[type="number"] {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 15px; font-weight: 500;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none; -webkit-appearance: none;
+    }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2300b4d8' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+    select:focus, input[type="number"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,180,216,0.15);
+    }
+    input[type="number"] { font-family: var(--font-num); }
+    select option { background: var(--navy); }
+
+    .field { margin-bottom: 14px; }
+    .field:last-child { margin-bottom: 0; }
+
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* ── RESULT BOX ── */
+    .result-box {
+      background: linear-gradient(135deg, rgba(0,180,216,0.12), rgba(0,229,255,0.06));
+      border: 1.5px solid rgba(0,180,216,0.35);
+      border-radius: 18px;
+      padding: 24px 20px;
+      text-align: center;
+      margin-bottom: 14px;
+      position: relative; overflow: hidden;
+    }
+    .result-box::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(0,229,255,0.08) 0%, transparent 70%);
+    }
+    .result-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 4px;
+    }
+    .result-rate {
+      font-family: var(--font-num);
+      font-size: 64px; font-weight: 700; line-height: 1;
+      color: var(--green);
+      transition: color 0.3s;
+      text-shadow: 0 0 30px currentColor;
+    }
+    .result-unit {
+      font-size: 18px; font-weight: 600; color: var(--muted);
+      margin-top: 4px; letter-spacing: 1px;
+    }
+    .result-rate.warn  { color: var(--amber); }
+    .result-rate.danger{ color: var(--red);   }
+
+    /* ── INFO GRID ── */
+    .info-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 14px;
+    }
+    .info-chip {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 12px;
+    }
+    .info-chip .key { font-size: 10px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .info-chip .val { font-size: 14px; font-weight: 700; font-family: var(--font-num); }
+
+    /* ── RANGE BAR ── */
+    .range-bar-wrap { margin-bottom: 14px; }
+    .range-bar-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; display:flex; justify-content:space-between; }
+    .range-bar-track {
+      height: 6px; background: rgba(255,255,255,0.08);
+      border-radius: 10px; overflow: hidden;
+    }
+    .range-bar-fill {
+      height: 100%; border-radius: 10px;
+      background: linear-gradient(90deg, var(--green), var(--amber));
+      transition: width 0.4s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ── ALERT ── */
+    .alert {
+      border-radius: 10px; padding: 10px 14px;
+      font-size: 12px; font-weight: 500; margin-bottom: 14px;
+      display: flex; gap: 8px; align-items: flex-start;
+    }
+    .alert.ok     { background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.25); color: var(--green); }
+    .alert.warn   { background: rgba(255,171,64,0.1); border: 1px solid rgba(255,171,64,0.25); color: var(--amber); }
+    .alert.danger { background: rgba(255,82,82,0.1);  border: 1px solid rgba(255,82,82,0.25);  color: var(--red);   }
+    .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: -1px; }
+
+    /* ── NOTES ── */
+    .notes {
+      background: rgba(0,180,216,0.07);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 10px 10px 0;
+      padding: 10px 14px; font-size: 12px;
+      color: var(--muted); line-height: 1.6;
+    }
+
+    /* ── REFERENCE TAB ── */
+    .ref-drug-header {
+      background: linear-gradient(135deg, var(--blue), var(--surface));
+      border: 1px solid var(--border);
+      border-radius: 14px 14px 0 0;
+      padding: 14px 16px;
+      margin-bottom: 0;
+    }
+    .ref-drug-header h3 { font-size: 15px; font-weight: 700; }
+    .ref-drug-header p  { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    .ref-table-wrap {
+      overflow-x: auto; margin-bottom: 20px;
+      border: 1px solid var(--border); border-top: none;
+      border-radius: 0 0 14px 14px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th {
+      background: rgba(0,180,216,0.15);
+      color: var(--accent); font-weight: 700;
+      padding: 10px 12px; text-align: center;
+      font-size: 11px; letter-spacing: 0.5px;
+      white-space: nowrap; position: sticky; top: 0;
+    }
+    th:first-child { text-align: left; }
+    td {
+      padding: 9px 12px; text-align: center;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      font-family: var(--font-num); font-size: 12px;
+      white-space: nowrap;
+    }
+    td:first-child {
+      font-weight: 700; color: var(--accent);
+      background: rgba(0,180,216,0.07);
+      text-align: left; position: sticky; left: 0;
+    }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+    tr:nth-child(even) td:first-child { background: rgba(0,180,216,0.09); }
+    tr:last-child td { border-bottom: none; }
+
+    /* ── ABOUT TAB ── */
+    .about-hero {
+      text-align: center; padding: 30px 20px 20px;
+    }
+    .about-hero .big-icon {
+      font-size: 56px; margin-bottom: 12px;
+      filter: drop-shadow(0 0 20px rgba(0,180,216,0.5));
+    }
+    .about-hero h2 { font-size: 28px; font-weight: 700; }
+    .about-hero p  { color: var(--muted); font-size: 13px; margin-top: 6px; }
+    .about-section { margin-bottom: 14px; }
+    .about-section h4 { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+    .drug-pill {
+      display: inline-block;
+      background: rgba(0,180,216,0.1); border: 1px solid rgba(0,180,216,0.25);
+      color: var(--accent); border-radius: 20px;
+      padding: 5px 12px; font-size: 12px; font-weight: 600;
+      margin: 3px;
+    }
+    .disclaimer {
+      background: rgba(255,82,82,0.08); border: 1px solid rgba(255,82,82,0.2);
+      border-radius: 12px; padding: 14px 16px;
+      font-size: 12px; color: #ff8a80; line-height: 1.6;
+    }
+    .disclaimer strong { display: block; margin-bottom: 4px; }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center; padding: 20px 16px 32px;
+      font-size: 11px; color: var(--muted);
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes pulse-glow {
+      0%, 100% { text-shadow: 0 0 20px currentColor; }
+      50%       { text-shadow: 0 0 40px currentColor, 0 0 60px currentColor; }
+    }
+    .result-rate { animation: pulse-glow 3s ease-in-out infinite; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .page.active { animation: fadeIn 0.25s ease; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-icon">💉</div>
+  <div class="header-text">
+    <h1>DripIQ</h1>
+    <p>ICU Infusion Calculator</p>
+  </div>
+  <div class="header-badge">v1.0</div>
+</header>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-tab active" onclick="showPage('calc',this)">
+    <span>⚡</span>Calculator
+  </div>
+  <div class="nav-tab" onclick="showPage('ref',this)">
+    <span>📋</span>Reference
+  </div>
+  <div class="nav-tab" onclick="showPage('about',this)">
+    <span>ℹ️</span>About
+  </div>
+</nav>
+
+<!-- ══════════════ CALCULATOR PAGE ══════════════ -->
+<div class="page active" id="calc">
+
+  <!-- Inputs -->
+  <div class="card">
+    <div class="card-title">Patient & Drug</div>
+    <div class="row-2">
+      <div class="field">
+        <label>Weight (kg)</label>
+        <input type="number" id="weight" value="70" min="1" max="300" step="0.5" oninput="calculate()"/>
+      </div>
+      <div class="field">
+        <label>Drug</label>
+        <select id="drugSel" onchange="onDrugChange()"></select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Preparation</label>
+      <select id="prepSel" onchange="onPrepChange()"></select>
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label>Dose</label>
+        <input type="number" id="dose" step="any" oninput="calculate()"/>
+      </div>
+      <div class="field">
+        <label>Unit</label>
+        <input type="text" id="doseUnit" readonly
+          style="background:rgba(0,180,216,0.07);border-color:rgba(0,180,216,0.2);color:var(--accent);font-weight:700;cursor:default;"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="result-box">
+    <div class="result-label">Infusion Rate</div>
+    <div class="result-rate" id="rateDisplay">—</div>
+    <div class="result-unit">ml / hr</div>
+  </div>
+
+  <!-- Info chips -->
+  <div class="info-grid">
+    <div class="info-chip">
+      <div class="key">CONCENTRATION</div>
+      <div class="val" id="infoConc">—</div>
+    </div>
+    <div class="info-chip">
+      <div class="key">ABSOLUTE DOSE</div>
+      <div class="val" id="infoDose">—</div>
+    </div>
+    <div class="info-chip">
+      <div class="key">DOSE RANGE</div>
+      <div class="val" id="infoRange">—</div>
+    </div>
+    <div class="info-chip">
+      <div class="key">WEIGHT</div>
+      <div class="val" id="infoWeight">—</div>
+    </div>
+  </div>
+
+  <!-- Range bar -->
+  <div class="range-bar-wrap">
+    <div class="range-bar-label">
+      <span>Min dose</span>
+      <span id="rangePct">—</span>
+      <span>Max dose</span>
+    </div>
+    <div class="range-bar-track">
+      <div class="range-bar-fill" id="rangeBar" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- Alert -->
+  <div class="alert ok" id="doseAlert">
+    <div class="alert-icon">✅</div>
+    <div id="alertText">Enter a dose to begin</div>
+  </div>
+
+  <!-- Notes -->
+  <div class="notes" id="drugNotes">Select a drug to see clinical notes.</div>
+
+</div>
+
+<!-- ══════════════ REFERENCE PAGE ══════════════ -->
+<div class="page" id="ref">
+  <div id="refContent"></div>
+</div>
+
+<!-- ══════════════ ABOUT PAGE ══════════════ -->
+<div class="page" id="about">
+  <div class="about-hero">
+    <div class="big-icon">💉</div>
+    <h2>DripIQ</h2>
+    <p>ICU Infusion Rate Calculator · v1.0</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Drugs Included</div>
+    <div>
+      <span class="drug-pill">Noradrenaline</span>
+      <span class="drug-pill">Adrenaline</span>
+      <span class="drug-pill">Dobutamine</span>
+      <span class="drug-pill">Dopamine</span>
+      <span class="drug-pill">Phenylephrine</span>
+      <span class="drug-pill">Vasopressin</span>
+      <span class="drug-pill">Milrinone</span>
+      <span class="drug-pill">Nitroglycerin</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">How to Install on Phone</div>
+    <div style="font-size:13px; line-height:1.8; color:var(--muted);">
+      <b style="color:var(--text);">Android (Chrome):</b><br/>
+      Open this page → tap ⋮ menu → <em>"Add to Home screen"</em><br/><br/>
+      <b style="color:var(--text);">iPhone (Safari):</b><br/>
+      Open this page → tap Share 📤 → <em>"Add to Home Screen"</em>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Formula Used</div>
+    <div style="font-size:13px; line-height:1.8; color:var(--muted);">
+      <b style="color:var(--accent); font-family:var(--font-num);">Weight-based:</b><br/>
+      ml/hr = Dose × Weight × 60 ÷ Concentration<br/><br/>
+      <b style="color:var(--accent); font-family:var(--font-num);">Fixed dose:</b><br/>
+      ml/hr = Dose ÷ Concentration × 60
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    <strong>⚠️ Clinical Disclaimer</strong>
+    DripIQ is a decision <em>support</em> tool only. Always verify
+    doses against your institution's drug protocols and guidelines.
+    Not a substitute for clinical judgment.
+  </div>
+
+  <div class="footer">
+    Built with ❤️ for ICU clinicians · DripIQ v1.0
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  DRUG DATABASE
+// ══════════════════════════════════════════
+const DRUGS = [
+  {
+    name: "Noradrenaline",
+    preparations: [
+      {
+        label: "Standard — 4mg / 50ml NS",
+        conc: 80, unit: "mcg/kg/min",
+        doseMin: 0.02, doseMax: 1.0, defaultDose: 0.1,
+        weightBased: true,
+        notes: "First-line vasopressor in septic shock. Titrate to MAP ≥ 65 mmHg. Monitor SVR.",
+        tableDoses: [0.02,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+      },
+      {
+        label: "High Conc — 8mg / 50ml NS",
+        conc: 160, unit: "mcg/kg/min",
+        doseMin: 0.02, doseMax: 1.0, defaultDose: 0.1,
+        weightBased: true,
+        notes: "Use in fluid-restricted patients. Same dose range, lower volume.",
+        tableDoses: [0.02,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+      }
+    ]
+  },
+  {
+    name: "Adrenaline (Epinephrine)",
+    preparations: [
+      {
+        label: "4mg / 50ml NS",
+        conc: 80, unit: "mcg/kg/min",
+        doseMin: 0.02, doseMax: 1.0, defaultDose: 0.1,
+        weightBased: true,
+        notes: "Monitor HR and arrhythmias closely. May cause tachycardia and lactic acidosis at high doses.",
+        tableDoses: [0.02,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+      }
+    ]
+  },
+  {
+    name: "Dobutamine",
+    preparations: [
+      {
+        label: "250mg / 50ml NS",
+        conc: 5000, unit: "mcg/kg/min",
+        doseMin: 2, doseMax: 20, defaultDose: 5,
+        weightBased: true,
+        notes: "Positive inotrope. Titrate to cardiac output. May cause hypotension and tachyarrhythmias.",
+        tableDoses: [2,3,4,5,6,7,8,10,12,15,18,20]
+      }
+    ]
+  },
+  {
+    name: "Dopamine",
+    preparations: [
+      {
+        label: "200mg / 50ml NS",
+        conc: 4000, unit: "mcg/kg/min",
+        doseMin: 5, doseMax: 20, defaultDose: 5,
+        weightBased: true,
+        notes: "Dose-dependent: 2–5 dopaminergic, 5–10 beta, >10 alpha. Monitor for arrhythmias.",
+        tableDoses: [5,6,7,8,9,10,12,14,16,18,20]
+      }
+    ]
+  },
+  {
+    name: "Phenylephrine",
+    preparations: [
+      {
+        label: "10mg / 50ml NS",
+        conc: 200, unit: "mcg/kg/min",
+        doseMin: 0.2, doseMax: 3.0, defaultDose: 1.0,
+        weightBased: true,
+        notes: "Pure alpha-agonist — no direct cardiac effect. May cause reflex bradycardia. Useful when tachycardia present.",
+        tableDoses: [0.2,0.3,0.5,0.75,1.0,1.25,1.5,2.0,2.5,3.0]
+      }
+    ]
+  },
+  {
+    name: "Vasopressin ⚠",
+    preparations: [
+      {
+        label: "20 Units / 50ml NS",
+        conc: 0.4, unit: "units/min",
+        doseMin: 0.01, doseMax: 0.04, defaultDose: 0.02,
+        weightBased: false,
+        notes: "⚠ NOT weight-based — fixed dose only. Usually added as adjunct to noradrenaline in refractory shock.",
+        tableDoses: [0.01,0.02,0.03,0.04]
+      }
+    ]
+  },
+  {
+    name: "Milrinone",
+    preparations: [
+      {
+        label: "Standard — 50mg / 50ml NS",
+        conc: 1000, unit: "mcg/kg/min",
+        doseMin: 0.25, doseMax: 0.75, defaultDose: 0.375,
+        weightBased: true,
+        notes: "PDE-3 inhibitor. Loading dose optional: 50 mcg/kg over 10 min. Reduce dose in renal impairment. Monitor for hypotension.",
+        tableDoses: [0.25,0.30,0.375,0.40,0.50,0.625,0.75]
+      },
+      {
+        label: "Alternative — 20mg / 50ml NS",
+        conc: 400, unit: "mcg/kg/min",
+        doseMin: 0.25, doseMax: 0.75, defaultDose: 0.375,
+        weightBased: true,
+        notes: "Alternative dilution. Reduce dose in renal failure. Monitor BP and arrhythmias.",
+        tableDoses: [0.25,0.30,0.375,0.40,0.50,0.625,0.75]
+      }
+    ]
+  },
+  {
+    name: "Nitroglycerin ⚠",
+    preparations: [
+      {
+        label: "25mg / 50ml D5W",
+        conc: 500, unit: "mcg/min",
+        doseMin: 5, doseMax: 200, defaultDose: 50,
+        weightBased: false,
+        notes: "⚠ NOT weight-based. Use non-PVC tubing. Protect from light. Titrate to blood pressure. Monitor closely.",
+        tableDoses: [5,10,20,30,40,50,60,80,100,120,150,200]
+      }
+    ]
+  }
+];
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+const drugSel = document.getElementById('drugSel');
+const prepSel = document.getElementById('prepSel');
+
+DRUGS.forEach((d,i) => {
+  const o = document.createElement('option');
+  o.value = i; o.textContent = d.name;
+  drugSel.appendChild(o);
+});
+
+function onDrugChange() {
+  const drug = DRUGS[drugSel.value];
+  prepSel.innerHTML = '';
+  drug.preparations.forEach((p,i) => {
+    const o = document.createElement('option');
+    o.value = i; o.textContent = p.label;
+    prepSel.appendChild(o);
+  });
+  onPrepChange();
+}
+
+function onPrepChange() {
+  const prep = currentPrep();
+  document.getElementById('dose').value = prep.defaultDose;
+  document.getElementById('doseUnit').value = prep.unit;
+  calculate();
+}
+
+function currentPrep() {
+  return DRUGS[drugSel.value].preparations[prepSel.value];
+}
+
+// ══════════════════════════════════════════
+//  CALCULATE
+// ══════════════════════════════════════════
+function calculate() {
+  const weight = parseFloat(document.getElementById('weight').value);
+  const dose   = parseFloat(document.getElementById('dose').value);
+  const prep   = currentPrep();
+
+  const rateEl  = document.getElementById('rateDisplay');
+  const alertEl = document.getElementById('doseAlert');
+  const alertTx = document.getElementById('alertText');
+
+  if (isNaN(weight) || isNaN(dose) || weight <= 0 || dose <= 0) {
+    rateEl.textContent = '—';
+    rateEl.className = 'result-rate';
+    return;
+  }
+
+  let rate, absDose;
+  if (prep.weightBased) {
+    rate    = dose * weight * 60 / prep.conc;
+    absDose = (dose * weight).toFixed(2) + ' mcg/min';
+  } else {
+    rate    = dose / prep.conc * 60;
+    absDose = dose + ' ' + prep.unit;
+  }
+
+  rateEl.textContent = rate.toFixed(2);
+
+  // Info chips
+  document.getElementById('infoConc').textContent   = prep.conc + (prep.unit === 'units/min' ? ' U/ml' : ' mcg/ml');
+  document.getElementById('infoDose').textContent   = absDose;
+  document.getElementById('infoRange').textContent  = prep.doseMin + '–' + prep.doseMax;
+  document.getElementById('infoWeight').textContent = weight.toFixed(1) + ' kg';
+
+  // Range bar
+  const pct  = Math.min(Math.max((dose - prep.doseMin) / (prep.doseMax - prep.doseMin), 0), 1);
+  document.getElementById('rangeBar').style.width = (pct * 100) + '%';
+  document.getElementById('rangePct').textContent = Math.round(pct * 100) + '%';
+
+  // Color & alert
+  if (dose < prep.doseMin) {
+    rateEl.className = 'result-rate warn';
+    alertEl.className = 'alert warn';
+    alertEl.querySelector('.alert-icon').textContent = '⚠️';
+    alertTx.textContent = `Dose (${dose}) is BELOW minimum (${prep.doseMin} ${prep.unit})`;
+  } else if (dose > prep.doseMax) {
+    rateEl.className = 'result-rate danger';
+    alertEl.className = 'alert danger';
+    alertEl.querySelector('.alert-icon').textContent = '🚨';
+    alertTx.textContent = `Dose (${dose}) EXCEEDS maximum (${prep.doseMax} ${prep.unit})`;
+  } else {
+    const greenAmber = pct < 0.5;
+    rateEl.className = pct > 0.75 ? 'result-rate warn' : 'result-rate';
+    alertEl.className = 'alert ok';
+    alertEl.querySelector('.alert-icon').textContent = '✅';
+    alertTx.textContent = `Dose within range · ${prep.doseMin}–${prep.doseMax} ${prep.unit}`;
+  }
+
+  document.getElementById('drugNotes').textContent = 'ℹ  ' + prep.notes;
+}
+
+// ══════════════════════════════════════════
+//  REFERENCE TABLES
+// ══════════════════════════════════════════
+const WEIGHTS = [50, 60, 70, 80, 90, 100];
+
+function buildRefTables() {
+  const container = document.getElementById('refContent');
+  container.innerHTML = '';
+
+  DRUGS.forEach(drug => {
+    drug.preparations.forEach(prep => {
+      const wrap = document.createElement('div');
+      wrap.style.marginBottom = '20px';
+
+      // Header
+      const hdr = document.createElement('div');
+      hdr.className = 'ref-drug-header';
+      hdr.innerHTML = `<h3>${drug.name}</h3><p>${prep.label} · ${prep.conc} ${prep.unit === 'units/min' ? 'units/ml' : 'mcg/ml'} · Range: ${prep.doseMin}–${prep.doseMax} ${prep.unit}</p>`;
+      wrap.appendChild(hdr);
+
+      // Table
+      const tw = document.createElement('div');
+      tw.className = 'ref-table-wrap';
+
+      const tbl = document.createElement('table');
+      // Header row
+      let thead = `<tr><th>Dose<br/>(${prep.unit})</th>`;
+      WEIGHTS.forEach(w => thead += `<th>${w}kg<br/>ml/hr</th>`);
+      thead += '</tr>';
+      tbl.innerHTML = `<thead>${thead}</thead>`;
+
+      const tbody = document.createElement('tbody');
+      prep.tableDoses.forEach(dose => {
+        let row = `<tr><td>${dose < 1 ? dose.toFixed(3).replace(/\.?0+$/, '') : dose}</td>`;
+        WEIGHTS.forEach(wt => {
+          let rate = prep.weightBased
+            ? dose * wt * 60 / prep.conc
+            : dose / prep.conc * 60;
+          row += `<td>${rate.toFixed(2)}</td>`;
+        });
+        row += '</tr>';
+        tbody.innerHTML += row;
+      });
+
+      tbl.appendChild(tbody);
+      tw.appendChild(tbl);
+      wrap.appendChild(tw);
+      container.appendChild(wrap);
+    });
+  });
+}
+
+// ══════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════
+function showPage(id, tab) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  tab.classList.add('active');
+  if (id === 'ref' && !document.getElementById('refContent').hasChildNodes()) {
+    buildRefTables();
+  }
+}
+
+// ══════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════
+onDrugChange();
+</script>
+</body>
+</html>
+
+<script>
+// Register service worker for offline use
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js');
+  });
+}
+</script>
