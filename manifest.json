@@ -1,14 +1,1 @@
-{
-  "name": "DripIQ — ICU Infusion Calculator",
-  "short_name": "DripIQ",
-  "description": "Weight-based ICU drug infusion rate calculator",
-  "start_url": "/index.html",
-  "display": "standalone",
-  "background_color": "#0f2447",
-  "theme_color": "#0f2447",
-  "orientation": "portrait-primary",
-  "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
-  ]
-}
+{"name":"DripIQ — ICU Infusion Calculator","short_name":"DripIQ","start_url":"/index.html","display":"standalone","background_color":"#0f2447","theme_color":"#0f2447","orientation":"portrait-primary","icons":[{"src":"icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}

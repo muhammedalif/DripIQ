@@ -7,139 +7,166 @@
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="apple-mobile-web-app-title" content="DripIQ"/>
-  <meta name="description" content="ICU Infusion Rate Calculator for medical professionals"/>
-  <title>DripIQ — ICU Infusion Calculator</title>
+  <title>DripIQ v3 — ICU Infusion Calculator</title>
   <link rel="manifest" href="manifest.json"/>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
     :root {
-      --navy:    #0f2447;
-      --blue:    #1a3a6e;
-      --accent:  #00b4d8;
-      --bright:  #00e5ff;
-      --green:   #00e676;
-      --amber:   #ffab40;
-      --red:     #ff5252;
-      --surface: #162040;
-      --card:    #1e2d50;
-      --border:  rgba(0,180,216,0.18);
-      --text:    #e8f4fd;
-      --muted:   #7fa8c9;
-      --font-ui: 'DM Sans', sans-serif;
-      --font-num:'Space Mono', monospace;
+      --navy:#0f2447; --blue:#1a3a6e; --accent:#00b4d8; --green:#00e676;
+      --amber:#ffab40; --red:#ff5252; --purple:#ce93d8;
+      --surface:#162040; --card:#1e2d50; --border:rgba(0,180,216,0.18);
+      --text:#e8f4fd; --muted:#7fa8c9;
+      --font-ui:'DM Sans',sans-serif; --font-num:'Space Mono',monospace;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body { font-family: var(--font-ui); background: var(--navy); color: var(--text); min-height: 100vh; overflow-x: hidden; }
-    body::before {
-      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-      background: radial-gradient(ellipse 80% 60% at 20% 10%, rgba(0,180,216,0.08) 0%, transparent 60%),
-                  radial-gradient(ellipse 60% 80% at 80% 80%, rgba(26,58,110,0.6) 0%, transparent 70%);
-    }
-    .header {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(15,36,71,0.92); backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border); padding: 14px 20px;
-      display: flex; align-items: center; gap: 12px;
-    }
-    .header-icon { width: 40px; height: 40px; background: linear-gradient(135deg,var(--accent),var(--blue));
-      border-radius: 12px; display: flex; align-items: center; justify-content: center;
-      font-size: 20px; box-shadow: 0 0 16px rgba(0,180,216,0.4); flex-shrink: 0; }
-    .header-text h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
-    .header-text p  { font-size: 11px; color: var(--muted); margin-top: 1px; }
-    .header-badge { margin-left: auto; font-size: 10px; font-weight: 600;
-      background: rgba(0,180,216,0.15); border: 1px solid rgba(0,180,216,0.3);
-      color: var(--accent); padding: 4px 10px; border-radius: 20px; }
-    .nav { display: flex; background: var(--surface); border-bottom: 1px solid var(--border);
-      position: sticky; top: 69px; z-index: 99; }
-    .nav-tab { flex: 1; padding: 13px 8px; text-align: center; font-size: 12px; font-weight: 600;
-      color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent;
-      transition: all 0.2s; letter-spacing: 0.3px; user-select: none; }
-    .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-    .nav-tab span { display: block; font-size: 18px; margin-bottom: 2px; }
-    .page { display: none; padding: 16px; position: relative; z-index: 1; }
-    .page.active { display: block; }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px;
-      padding: 18px; margin-bottom: 14px; }
-    .card-title { font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
-      text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
-    label { display: block; font-size: 12px; font-weight: 600; color: var(--muted);
-      margin-bottom: 6px; letter-spacing: 0.3px; }
-    select, input[type="number"] { width: 100%; background: rgba(255,255,255,0.06);
-      border: 1.5px solid var(--border); border-radius: 10px; color: var(--text);
-      font-family: var(--font-ui); font-size: 15px; font-weight: 500; padding: 12px 14px;
-      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
-      appearance: none; -webkit-appearance: none; }
-    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2300b4d8' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
-    select:focus, input[type="number"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,180,216,0.15); }
-    input[type="number"] { font-family: var(--font-num); }
-    select option { background: var(--navy); }
-    .field { margin-bottom: 14px; }
-    .field:last-child { margin-bottom: 0; }
-    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .result-box { background: linear-gradient(135deg,rgba(0,180,216,0.12),rgba(0,229,255,0.06));
-      border: 1.5px solid rgba(0,180,216,0.35); border-radius: 18px;
-      padding: 24px 20px; text-align: center; margin-bottom: 14px; position: relative; overflow: hidden; }
-    .result-box::before { content: ''; position: absolute; inset: 0;
-      background: radial-gradient(ellipse at 50% 0%, rgba(0,229,255,0.08) 0%, transparent 70%); }
-    .result-label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
-      text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
-    .result-rate { font-family: var(--font-num); font-size: 64px; font-weight: 700; line-height: 1;
-      color: var(--green); transition: color 0.3s; text-shadow: 0 0 30px currentColor; }
-    .result-unit { font-size: 18px; font-weight: 600; color: var(--muted); margin-top: 4px; letter-spacing: 1px; }
-    .result-rate.warn   { color: var(--amber); }
-    .result-rate.danger { color: var(--red); }
-    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-    .info-chip { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
-    .info-chip .key { font-size: 10px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; margin-bottom: 4px; }
-    .info-chip .val { font-size: 14px; font-weight: 700; font-family: var(--font-num); }
-    .range-bar-wrap { margin-bottom: 14px; }
-    .range-bar-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; display:flex; justify-content:space-between; }
-    .range-bar-track { height: 6px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; }
-    .range-bar-fill { height: 100%; border-radius: 10px;
-      background: linear-gradient(90deg, var(--green), var(--amber));
-      transition: width 0.4s cubic-bezier(.4,0,.2,1); }
-    .alert { border-radius: 10px; padding: 10px 14px; font-size: 12px; font-weight: 500;
-      margin-bottom: 14px; display: flex; gap: 8px; align-items: flex-start; }
-    .alert.ok     { background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.25); color: var(--green); }
-    .alert.warn   { background: rgba(255,171,64,0.1); border: 1px solid rgba(255,171,64,0.25); color: var(--amber); }
-    .alert.danger { background: rgba(255,82,82,0.1);  border: 1px solid rgba(255,82,82,0.25);  color: var(--red); }
-    .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: -1px; }
-    .notes { background: rgba(0,180,216,0.07); border-left: 3px solid var(--accent);
-      border-radius: 0 10px 10px 0; padding: 10px 14px; font-size: 12px; color: var(--muted); line-height: 1.6; }
-    .ref-drug-header { background: linear-gradient(135deg, var(--blue), var(--surface));
-      border: 1px solid var(--border); border-radius: 14px 14px 0 0; padding: 14px 16px; }
-    .ref-drug-header h3 { font-size: 15px; font-weight: 700; }
-    .ref-drug-header p  { font-size: 11px; color: var(--muted); margin-top: 3px; }
-    .ref-table-wrap { overflow-x: auto; margin-bottom: 20px;
-      border: 1px solid var(--border); border-top: none; border-radius: 0 0 14px 14px; }
-    table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    th { background: rgba(0,180,216,0.15); color: var(--accent); font-weight: 700;
-      padding: 10px 12px; text-align: center; font-size: 11px; letter-spacing: 0.5px; white-space: nowrap; }
-    th:first-child { text-align: left; }
-    td { padding: 9px 12px; text-align: center; border-top: 1px solid rgba(255,255,255,0.04);
-      font-family: var(--font-num); font-size: 12px; white-space: nowrap; }
-    td:first-child { font-weight: 700; color: var(--accent); background: rgba(0,180,216,0.07);
-      text-align: left; position: sticky; left: 0; }
-    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
-    tr:nth-child(even) td:first-child { background: rgba(0,180,216,0.09); }
-    .about-hero { text-align: center; padding: 30px 20px 20px; }
-    .about-hero .big-icon { font-size: 56px; margin-bottom: 12px; filter: drop-shadow(0 0 20px rgba(0,180,216,0.5)); }
-    .about-hero h2 { font-size: 28px; font-weight: 700; }
-    .about-hero p  { color: var(--muted); font-size: 13px; margin-top: 6px; }
-    .drug-pill { display: inline-block; background: rgba(0,180,216,0.1); border: 1px solid rgba(0,180,216,0.25);
-      color: var(--accent); border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 600; margin: 3px; }
-    .disclaimer { background: rgba(255,82,82,0.08); border: 1px solid rgba(255,82,82,0.2);
-      border-radius: 12px; padding: 14px 16px; font-size: 12px; color: #ff8a80; line-height: 1.6; }
-    .disclaimer strong { display: block; margin-bottom: 4px; }
-    .footer { text-align: center; padding: 20px 16px 32px; font-size: 11px; color: var(--muted); }
-    @keyframes pulse-glow { 0%,100%{text-shadow:0 0 20px currentColor;} 50%{text-shadow:0 0 40px currentColor,0 0 60px currentColor;} }
-    .result-rate { animation: pulse-glow 3s ease-in-out infinite; }
-    @keyframes fadeIn { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
-    .page.active { animation: fadeIn 0.25s ease; }
-    /* Version badge */
-    .version-tag { display:inline-block; background:rgba(0,230,118,0.12); border:1px solid rgba(0,230,118,0.3);
-      color:var(--green); border-radius:20px; padding:3px 10px; font-size:10px; font-weight:700; margin-left:8px; }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    body{font-family:var(--font-ui);background:var(--navy);color:var(--text);min-height:100vh;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+      background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(0,180,216,0.08) 0%,transparent 60%),
+                 radial-gradient(ellipse 60% 80% at 80% 80%,rgba(26,58,110,0.6) 0%,transparent 70%);}
+
+    /* HEADER */
+    .header{position:sticky;top:0;z-index:100;background:rgba(15,36,71,0.94);
+      backdrop-filter:blur(16px);border-bottom:1px solid var(--border);
+      padding:12px 18px;display:flex;align-items:center;gap:10px;}
+    .header-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--accent),var(--blue));
+      border-radius:11px;display:flex;align-items:center;justify-content:center;
+      font-size:19px;box-shadow:0 0 14px rgba(0,180,216,0.4);flex-shrink:0;}
+    .header-text h1{font-size:19px;font-weight:700;letter-spacing:-0.3px;}
+    .header-text p{font-size:10px;color:var(--muted);margin-top:1px;}
+    .version-tag{display:inline-block;background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.3);
+      color:var(--green);border-radius:20px;padding:2px 8px;font-size:9px;font-weight:700;margin-left:6px;}
+    .header-badge{margin-left:auto;font-size:10px;font-weight:600;
+      background:rgba(0,180,216,0.15);border:1px solid rgba(0,180,216,0.3);
+      color:var(--accent);padding:4px 10px;border-radius:20px;}
+
+    /* NAV */
+    .nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);
+      position:sticky;top:63px;z-index:99;}
+    .nav-tab{flex:1;padding:12px 6px;text-align:center;font-size:11px;font-weight:600;
+      color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;
+      transition:all 0.2s;user-select:none;letter-spacing:0.3px;}
+    .nav-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+    .nav-tab span{display:block;font-size:17px;margin-bottom:2px;}
+
+    /* PAGES */
+    .page{display:none;padding:14px;position:relative;z-index:1;padding-bottom:30px;}
+    .page.active{display:block;animation:fadeIn 0.25s ease;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+    /* CARDS */
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;}
+    .card-title{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
+
+    /* FORM */
+    label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;letter-spacing:0.3px;}
+    select,input[type="number"]{width:100%;background:rgba(255,255,255,0.06);border:1.5px solid var(--border);
+      border-radius:10px;color:var(--text);font-family:var(--font-ui);font-size:14px;font-weight:500;
+      padding:11px 13px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;
+      appearance:none;-webkit-appearance:none;}
+    select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2300b4d8' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;}
+    select:focus,input[type="number"]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,180,216,0.15);}
+    input[type="number"]{font-family:var(--font-num);}
+    select option{background:var(--navy);}
+    .field{margin-bottom:12px;}
+    .field:last-child{margin-bottom:0;}
+    .row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+    /* CATEGORY SELECTOR */
+    .cat-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+    .cat-btn{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;
+      background:var(--card);border:1px solid var(--border);color:var(--muted);transition:all 0.2s;}
+    .cat-btn.active{background:rgba(0,180,216,0.15);border-color:rgba(0,180,216,0.4);color:var(--accent);}
+
+    /* RESULT */
+    .result-box{background:linear-gradient(135deg,rgba(0,180,216,0.12),rgba(0,229,255,0.06));
+      border:1.5px solid rgba(0,180,216,0.35);border-radius:18px;padding:20px;
+      text-align:center;margin-bottom:12px;position:relative;overflow:hidden;}
+    .result-box::before{content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse at 50% 0%,rgba(0,229,255,0.08) 0%,transparent 70%);}
+    .result-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+    .result-rate{font-family:var(--font-num);font-size:58px;font-weight:700;line-height:1;
+      color:var(--green);transition:color 0.3s;animation:pulse-glow 3s ease-in-out infinite;}
+    .result-unit{font-size:16px;font-weight:600;color:var(--muted);margin-top:4px;letter-spacing:1px;}
+    .result-rate.warn{color:var(--amber);}
+    .result-rate.danger{color:var(--red);}
+    @keyframes pulse-glow{0%,100%{text-shadow:0 0 20px currentColor;}50%{text-shadow:0 0 40px currentColor,0 0 60px currentColor;}}
+
+    /* AMIODARONE SPECIAL */
+    .amio-phases{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+    .amio-phase{border-radius:14px;padding:14px;text-align:center;border:1.5px solid;}
+    .amio-phase.p1{background:rgba(0,180,216,0.1);border-color:rgba(0,180,216,0.3);}
+    .amio-phase.p2{background:rgba(255,171,64,0.1);border-color:rgba(255,171,64,0.3);}
+    .amio-phase .ph-label{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+    .amio-phase.p1 .ph-label{color:var(--accent);}
+    .amio-phase.p2 .ph-label{color:var(--amber);}
+    .amio-phase .ph-rate{font-family:var(--font-num);font-size:28px;font-weight:700;line-height:1;}
+    .amio-phase.p1 .ph-rate{color:var(--accent);}
+    .amio-phase.p2 .ph-rate{color:var(--amber);}
+    .amio-phase .ph-sub{font-size:10px;color:var(--muted);margin-top:4px;}
+
+    /* INFO GRID */
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+    .info-chip{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:9px 11px;}
+    .info-chip .key{font-size:9px;color:var(--muted);font-weight:600;letter-spacing:0.5px;margin-bottom:3px;}
+    .info-chip .val{font-size:13px;font-weight:700;font-family:var(--font-num);}
+
+    /* RANGE BAR */
+    .range-bar-wrap{margin-bottom:12px;}
+    .range-bar-label{font-size:11px;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between;}
+    .range-bar-track{height:5px;background:rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;}
+    .range-bar-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--green),var(--amber));
+      transition:width 0.4s cubic-bezier(.4,0,.2,1);}
+
+    /* ALERT */
+    .alert{border-radius:10px;padding:9px 13px;font-size:12px;font-weight:500;
+      margin-bottom:12px;display:flex;gap:8px;align-items:flex-start;}
+    .alert.ok{background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.25);color:var(--green);}
+    .alert.warn{background:rgba(255,171,64,0.1);border:1px solid rgba(255,171,64,0.25);color:var(--amber);}
+    .alert.danger{background:rgba(255,82,82,0.1);border:1px solid rgba(255,82,82,0.25);color:var(--red);}
+    .alert-icon{font-size:15px;flex-shrink:0;}
+    .notes{background:rgba(0,180,216,0.07);border-left:3px solid var(--accent);
+      border-radius:0 10px 10px 0;padding:9px 13px;font-size:12px;color:var(--muted);line-height:1.6;}
+
+    /* REFERENCE */
+    .ref-section-hdr{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;
+      color:var(--accent);padding:14px 0 8px;display:flex;align-items:center;gap:8px;}
+    .ref-section-hdr::after{content:'';flex:1;height:1px;background:var(--border);}
+    .ref-drug-header{background:linear-gradient(135deg,var(--blue),var(--surface));
+      border:1px solid var(--border);border-radius:14px 14px 0 0;padding:12px 14px;}
+    .ref-drug-header h3{font-size:14px;font-weight:700;}
+    .ref-drug-header p{font-size:11px;color:var(--muted);margin-top:2px;}
+    .ref-table-wrap{overflow-x:auto;margin-bottom:16px;border:1px solid var(--border);
+      border-top:none;border-radius:0 0 14px 14px;}
+    table{width:100%;border-collapse:collapse;font-size:12px;}
+    th{background:rgba(0,180,216,0.15);color:var(--accent);font-weight:700;
+      padding:9px 10px;text-align:center;font-size:10px;letter-spacing:0.5px;white-space:nowrap;}
+    th:first-child{text-align:left;}
+    td{padding:8px 10px;text-align:center;border-top:1px solid rgba(255,255,255,0.04);
+      font-family:var(--font-num);font-size:11px;white-space:nowrap;}
+    td:first-child{font-weight:700;color:var(--accent);background:rgba(0,180,216,0.07);
+      text-align:left;position:sticky;left:0;}
+    tr:nth-child(even) td{background:rgba(255,255,255,0.02);}
+    tr:nth-child(even) td:first-child{background:rgba(0,180,216,0.09);}
+
+    /* ABOUT */
+    .about-hero{text-align:center;padding:24px 16px 16px;}
+    .about-hero .big-icon{font-size:52px;margin-bottom:10px;filter:drop-shadow(0 0 20px rgba(0,180,216,0.5));}
+    .about-hero h2{font-size:26px;font-weight:700;}
+    .about-hero p{color:var(--muted);font-size:13px;margin-top:5px;}
+    .drug-pill{display:inline-block;background:rgba(0,180,216,0.1);border:1px solid rgba(0,180,216,0.25);
+      color:var(--accent);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;margin:3px;}
+    .drug-pill.new{background:rgba(0,230,118,0.1);border-color:rgba(0,230,118,0.3);color:var(--green);}
+    .disclaimer{background:rgba(255,82,82,0.08);border:1px solid rgba(255,82,82,0.2);
+      border-radius:12px;padding:14px 16px;font-size:12px;color:#ff8a80;line-height:1.6;}
+    .disclaimer strong{display:block;margin-bottom:4px;}
+    .footer{text-align:center;padding:16px 16px 28px;font-size:11px;color:var(--muted);}
+
+    /* REF FILTER */
+    .ref-filter{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+    .ref-filter-btn{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;
+      background:var(--card);border:1px solid var(--border);color:var(--muted);transition:all 0.2s;}
+    .ref-filter-btn.active{background:rgba(0,180,216,0.15);border-color:rgba(0,180,216,0.4);color:var(--accent);}
   </style>
 </head>
 <body>
@@ -147,7 +174,7 @@
 <header class="header">
   <div class="header-icon">💉</div>
   <div class="header-text">
-    <h1>DripIQ <span class="version-tag">v2.0</span></h1>
+    <h1>DripIQ <span class="version-tag">v3.0</span></h1>
     <p>ICU Infusion Rate Calculator</p>
   </div>
   <div class="header-badge">ICU Edition</div>
@@ -163,21 +190,24 @@
 <div class="page active" id="calc">
   <div class="card">
     <div class="card-title">Patient &amp; Drug</div>
-    <div class="row-2">
-      <div class="field">
-        <label>Weight (kg)</label>
-        <input type="number" id="weight" value="70" min="1" max="300" step="0.5" oninput="calculate()"/>
-      </div>
-      <div class="field">
-        <label>Drug</label>
-        <select id="drugSel" onchange="onDrugChange()"></select>
-      </div>
+    <div class="field">
+      <label>Weight (kg)</label>
+      <input type="number" id="weight" value="70" min="1" max="300" step="0.5" oninput="calculate()"/>
+    </div>
+    <div class="field">
+      <label>Category</label>
+      <select id="catSel" onchange="onCatChange()"></select>
+    </div>
+    <div class="field">
+      <label>Drug</label>
+      <select id="drugSel" onchange="onDrugChange()"></select>
     </div>
     <div class="field">
       <label>Preparation</label>
       <select id="prepSel" onchange="onPrepChange()"></select>
     </div>
-    <div class="row-2">
+    <!-- Normal dose input (hidden for amiodarone) -->
+    <div id="normalDoseRow" class="row-2">
       <div class="field">
         <label>Dose</label>
         <input type="number" id="dose" step="any" oninput="calculate()"/>
@@ -190,34 +220,64 @@
     </div>
   </div>
 
-  <div class="result-box">
-    <div class="result-label">Infusion Rate</div>
-    <div class="result-rate" id="rateDisplay">—</div>
-    <div class="result-unit">ml / hr</div>
+  <!-- Normal result (hidden for amiodarone) -->
+  <div id="normalResult">
+    <div class="result-box">
+      <div class="result-label">Infusion Rate</div>
+      <div class="result-rate" id="rateDisplay">—</div>
+      <div class="result-unit">ml / hr</div>
+    </div>
+    <div class="info-grid">
+      <div class="info-chip"><div class="key">CONCENTRATION</div><div class="val" id="infoConc">—</div></div>
+      <div class="info-chip"><div class="key">ABSOLUTE DOSE</div><div class="val" id="infoDose">—</div></div>
+      <div class="info-chip"><div class="key">DOSE RANGE</div><div class="val" id="infoRange">—</div></div>
+      <div class="info-chip"><div class="key">WEIGHT</div><div class="val" id="infoWeight">—</div></div>
+    </div>
+    <div class="range-bar-wrap">
+      <div class="range-bar-label"><span>Min</span><span id="rangePct">—</span><span>Max</span></div>
+      <div class="range-bar-track"><div class="range-bar-fill" id="rangeBar" style="width:0%"></div></div>
+    </div>
+    <div class="alert ok" id="doseAlert">
+      <div class="alert-icon">✅</div><div id="alertText">Enter a dose to begin</div>
+    </div>
   </div>
 
-  <div class="info-grid">
-    <div class="info-chip"><div class="key">CONCENTRATION</div><div class="val" id="infoConc">—</div></div>
-    <div class="info-chip"><div class="key">ABSOLUTE DOSE</div><div class="val" id="infoDose">—</div></div>
-    <div class="info-chip"><div class="key">DOSE RANGE</div><div class="val" id="infoRange">—</div></div>
-    <div class="info-chip"><div class="key">WEIGHT</div><div class="val" id="infoWeight">—</div></div>
+  <!-- Amiodarone special result -->
+  <div id="amioResult" style="display:none;">
+    <div class="card">
+      <div class="card-title">Amiodarone — 900mg in 500ml D5W (1.8 mg/ml)</div>
+      <div class="amio-phases">
+        <div class="amio-phase p1">
+          <div class="ph-label">Phase 1 · 6 Hours</div>
+          <div class="ph-rate" id="amioRate1">33.33</div>
+          <div class="ph-sub">ml/hr</div>
+          <div class="ph-sub" style="margin-top:6px;">1 mg/min × 360 min</div>
+          <div class="ph-sub">= 360 mg total</div>
+        </div>
+        <div class="amio-phase p2">
+          <div class="ph-label">Phase 2 · 18 Hours</div>
+          <div class="ph-rate" id="amioRate2">16.67</div>
+          <div class="ph-sub">ml/hr</div>
+          <div class="ph-sub" style="margin-top:6px;">0.5 mg/min × 1080 min</div>
+          <div class="ph-sub">= 540 mg total</div>
+        </div>
+      </div>
+      <div class="info-grid">
+        <div class="info-chip"><div class="key">PREPARATION</div><div class="val" style="font-size:11px;">900mg / 500ml D5W</div></div>
+        <div class="info-chip"><div class="key">CONCENTRATION</div><div class="val">1.8 mg/ml</div></div>
+        <div class="info-chip"><div class="key">TOTAL DOSE</div><div class="val">900 mg / 24 hr</div></div>
+        <div class="info-chip"><div class="key">TOTAL VOLUME</div><div class="val">500 ml</div></div>
+      </div>
+    </div>
+    <div class="notes">⚠ Amiodarone is NOT weight-based. Use D5W only (not NS). Administer via central line. Monitor QTc, BP, and thyroid function. Phase 1: 1 mg/min for 6 hr → Phase 2: 0.5 mg/min for 18 hr.</div>
   </div>
 
-  <div class="range-bar-wrap">
-    <div class="range-bar-label"><span>Min</span><span id="rangePct">—</span><span>Max</span></div>
-    <div class="range-bar-track"><div class="range-bar-fill" id="rangeBar" style="width:0%"></div></div>
-  </div>
-
-  <div class="alert ok" id="doseAlert">
-    <div class="alert-icon">✅</div>
-    <div id="alertText">Enter a dose to begin</div>
-  </div>
-
-  <div class="notes" id="drugNotes">Select a drug to see clinical notes.</div>
+  <div class="notes" id="drugNotes" style="margin-top:0;">Select a drug to see clinical notes.</div>
 </div>
 
 <!-- ══ REFERENCE ══ -->
 <div class="page" id="ref">
+  <div class="ref-filter" id="refFilter"></div>
   <div id="refContent"></div>
 </div>
 
@@ -226,126 +286,281 @@
   <div class="about-hero">
     <div class="big-icon">💉</div>
     <h2>DripIQ</h2>
-    <p>ICU Infusion Rate Calculator · v2.0</p>
+    <p>ICU Infusion Rate Calculator · v3.0</p>
   </div>
+
   <div class="card">
-    <div class="card-title">What's New in v2.0</div>
-    <div style="font-size:13px;color:var(--muted);line-height:1.8;">
-      ✅ <b style="color:var(--text);">NTG update</b> — Added 50 mg in 50 ml D5W preparation (1000 mcg/ml)<br/>
-      ✅ Both NTG preparations now available in Calculator &amp; Reference tabs
+    <div class="card-title">What's New in v3.0</div>
+    <div style="font-size:13px;color:var(--muted);line-height:2;">
+      🆕 <b style="color:var(--text);">20 new drugs added</b> across 6 categories<br/>
+      🆕 <b style="color:var(--text);">Amiodarone</b> — special 24hr phased protocol<br/>
+      🆕 <b style="color:var(--text);">Category filter</b> in Calculator &amp; Reference tabs<br/>
+      🆕 <b style="color:var(--text);">Multi-unit support</b> — mg/kg/hr, mcg/kg/hr, mg/min, mg/hr, units/kg/hr<br/>
+      ✅ All v2.0 drugs kept unchanged
     </div>
   </div>
+
   <div class="card">
-    <div class="card-title">Drugs Included</div>
+    <div class="card-title">Existing Drugs (v1/v2)</div>
     <div>
-      <span class="drug-pill">Noradrenaline ×2</span>
-      <span class="drug-pill">Adrenaline</span>
-      <span class="drug-pill">Dobutamine</span>
-      <span class="drug-pill">Dopamine</span>
-      <span class="drug-pill">Phenylephrine</span>
-      <span class="drug-pill">Vasopressin ⚠</span>
-      <span class="drug-pill">Milrinone ×2</span>
-      <span class="drug-pill">NTG ×2 🆕</span>
+      <span class="drug-pill">Noradrenaline ×2</span><span class="drug-pill">Adrenaline</span>
+      <span class="drug-pill">Dobutamine</span><span class="drug-pill">Dopamine</span>
+      <span class="drug-pill">Phenylephrine</span><span class="drug-pill">Vasopressin</span>
+      <span class="drug-pill">Milrinone ×2</span><span class="drug-pill">NTG ×2</span>
     </div>
   </div>
+
   <div class="card">
-    <div class="card-title">Formula</div>
-    <div style="font-size:13px;color:var(--muted);line-height:1.8;">
-      <b style="color:var(--accent);">Weight-based:</b> ml/hr = Dose × Weight × 60 ÷ Concentration<br/>
-      <b style="color:var(--accent);">Fixed dose:</b> ml/hr = Dose ÷ Concentration × 60<br/>
-      <span style="font-size:11px;">⚠ Vasopressin &amp; NTG are NOT weight-based</span>
+    <div class="card-title">New in v3.0 🆕</div>
+    <div>
+      <span class="drug-pill new">Levosimendan</span><span class="drug-pill new">Terlipressin</span>
+      <span class="drug-pill new">Nitroprusside</span><span class="drug-pill new">Nicardipine</span>
+      <span class="drug-pill new">Labetalol</span><span class="drug-pill new">Propofol</span>
+      <span class="drug-pill new">Midazolam</span><span class="drug-pill new">Dexmedetomidine</span>
+      <span class="drug-pill new">Ketamine</span><span class="drug-pill new">Fentanyl</span>
+      <span class="drug-pill new">Morphine</span><span class="drug-pill new">Atracurium</span>
+      <span class="drug-pill new">Cisatracurium</span><span class="drug-pill new">Vecuronium</span>
+      <span class="drug-pill new">Rocuronium</span><span class="drug-pill new">Amiodarone ⚡</span>
+      <span class="drug-pill new">Lidocaine</span><span class="drug-pill new">Esmolol</span>
+      <span class="drug-pill new">Heparin</span><span class="drug-pill new">Insulin</span>
+      <span class="drug-pill new">Furosemide</span><span class="drug-pill new">Octreotide</span>
+      <span class="drug-pill new">Aminophylline</span>
     </div>
   </div>
+
+  <div class="card">
+    <div class="card-title">Rate Formulas</div>
+    <div style="font-size:12px;color:var(--muted);line-height:2;font-family:var(--font-num);">
+      mcg/kg/min → dose × wt × 60 ÷ conc(mcg/ml)<br/>
+      mg/kg/hr   → dose × wt ÷ conc(mg/ml)<br/>
+      mcg/kg/hr  → dose × wt ÷ conc(mcg/ml)<br/>
+      units/kg/hr→ dose × wt ÷ conc(U/ml)<br/>
+      mg/min     → dose ÷ conc(mg/ml) × 60<br/>
+      mcg/min    → dose ÷ conc(mcg/ml) × 60<br/>
+      mg/hr      → dose ÷ conc(mg/ml)<br/>
+      mcg/hr     → dose ÷ conc(mcg/ml)
+    </div>
+  </div>
+
   <div class="card">
     <div class="card-title">Install on Phone</div>
     <div style="font-size:13px;color:var(--muted);line-height:1.8;">
-      <b style="color:var(--text);">Android (Chrome):</b> tap ⋮ → "Add to Home screen"<br/>
-      <b style="color:var(--text);">iPhone (Safari):</b> tap Share 📤 → "Add to Home Screen"
+      <b style="color:var(--text);">Android:</b> Chrome → ⋮ → "Add to Home screen"<br/>
+      <b style="color:var(--text);">iPhone:</b> Safari → Share 📤 → "Add to Home Screen"
     </div>
   </div>
+
   <div class="disclaimer">
     <strong>⚠️ Clinical Disclaimer</strong>
     DripIQ is a decision support tool only. Always verify doses against your
-    institution's protocols. Not a substitute for clinical judgment.
+    institution's protocols, local pharmacy policies, and clinical guidelines.
+    Not a substitute for clinical judgment.
   </div>
-  <div class="footer">Built with ❤️ for ICU clinicians · DripIQ v2.0</div>
+  <div class="footer">Built with ❤️ for ICU clinicians · DripIQ v3.0</div>
 </div>
 
 <script>
-// ══════════════════════════════════════════
-//  DRUG DATABASE  — v2.0
-// ══════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+//  DRUG DATABASE v3.0
+//  conc unit must match dose unit for correct formula
+// ══════════════════════════════════════════════════════
+const CATEGORIES = [
+  { key:"vasopressors",   label:"Vasopressors & Inotropes" },
+  { key:"vasodilators",   label:"Vasodilators"             },
+  { key:"sedatives",      label:"Sedatives"                },
+  { key:"analgesics",     label:"Analgesics"               },
+  { key:"nmb",            label:"Neuromusc. Blockers"      },
+  { key:"antiarrhythmics",label:"Antiarrhythmics"          },
+  { key:"others",         label:"Others"                   },
+];
+
 const DRUGS = [
-  {
-    name: "Noradrenaline",
-    preparations: [
-      { label:"Standard — 4mg / 50ml NS",     conc:80,  unit:"mcg/kg/min", doseMin:0.02, doseMax:1.0, defaultDose:0.1,   weightBased:true,  notes:"First-line vasopressor in septic shock. Titrate to MAP ≥ 65 mmHg.", tableDoses:[0.02,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0] },
-      { label:"High Conc — 8mg / 50ml NS",    conc:160, unit:"mcg/kg/min", doseMin:0.02, doseMax:1.0, defaultDose:0.1,   weightBased:true,  notes:"Use in fluid-restricted patients. Same dose range, half the volume.", tableDoses:[0.02,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0] },
-    ]
-  },
-  {
-    name: "Adrenaline (Epinephrine)",
-    preparations: [
-      { label:"4mg / 50ml NS",                conc:80,  unit:"mcg/kg/min", doseMin:0.02, doseMax:1.0, defaultDose:0.1,   weightBased:true,  notes:"Monitor HR and arrhythmias closely. May cause tachycardia and lactic acidosis at high doses.", tableDoses:[0.02,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0] },
-    ]
-  },
-  {
-    name: "Dobutamine",
-    preparations: [
-      { label:"250mg / 50ml NS",              conc:5000,unit:"mcg/kg/min", doseMin:2,    doseMax:20,  defaultDose:5,     weightBased:true,  notes:"Positive inotrope. Titrate to cardiac output. May cause hypotension and tachyarrhythmias.", tableDoses:[2,3,4,5,6,7,8,10,12,15,18,20] },
-    ]
-  },
-  {
-    name: "Dopamine",
-    preparations: [
-      { label:"200mg / 50ml NS",              conc:4000,unit:"mcg/kg/min", doseMin:5,    doseMax:20,  defaultDose:5,     weightBased:true,  notes:"Dose-dependent: 2–5 dopaminergic, 5–10 beta, >10 alpha. Monitor for arrhythmias.", tableDoses:[5,6,7,8,9,10,12,14,16,18,20] },
-    ]
-  },
-  {
-    name: "Phenylephrine",
-    preparations: [
-      { label:"10mg / 50ml NS",               conc:200, unit:"mcg/kg/min", doseMin:0.2,  doseMax:3.0, defaultDose:1.0,   weightBased:true,  notes:"Pure alpha-agonist. No direct cardiac effect. May cause reflex bradycardia.", tableDoses:[0.2,0.3,0.5,0.75,1.0,1.25,1.5,2.0,2.5,3.0] },
-    ]
-  },
-  {
-    name: "Vasopressin ⚠",
-    preparations: [
-      { label:"20 Units / 50ml NS",           conc:0.4, unit:"units/min",  doseMin:0.01, doseMax:0.04,defaultDose:0.02,  weightBased:false, notes:"⚠ NOT weight-based — fixed dose only. Usually added as adjunct to noradrenaline in refractory shock.", tableDoses:[0.01,0.02,0.03,0.04] },
-    ]
-  },
-  {
-    name: "Milrinone",
-    preparations: [
-      { label:"Standard — 50mg / 50ml NS",    conc:1000,unit:"mcg/kg/min", doseMin:0.25, doseMax:0.75,defaultDose:0.375, weightBased:true,  notes:"PDE-3 inhibitor. Loading dose optional: 50 mcg/kg over 10 min. Reduce in renal impairment.", tableDoses:[0.25,0.30,0.375,0.40,0.50,0.625,0.75] },
-      { label:"Alternative — 20mg / 50ml NS", conc:400, unit:"mcg/kg/min", doseMin:0.25, doseMax:0.75,defaultDose:0.375, weightBased:true,  notes:"Alternative dilution. Reduce dose in renal failure. Monitor BP and arrhythmias.", tableDoses:[0.25,0.30,0.375,0.40,0.50,0.625,0.75] },
-    ]
-  },
-  {
-    name: "Nitroglycerin (NTG) ⚠",
-    preparations: [
-      // ─── UPDATED in v2.0: two preparations ───
-      { label:"Standard — 25mg / 50ml D5W",   conc:500, unit:"mcg/min",    doseMin:5,    doseMax:200, defaultDose:50,    weightBased:false, notes:"⚠ NOT weight-based. Standard preparation (500 mcg/ml). Use non-PVC tubing. Protect from light. Titrate to BP.", tableDoses:[5,10,20,30,40,50,60,80,100,120,150,200] },
-      { label:"High Conc — 50mg / 50ml D5W",  conc:1000,unit:"mcg/min",    doseMin:5,    doseMax:200, defaultDose:50,    weightBased:false, notes:"⚠ NOT weight-based. High concentration (1000 mcg/ml) — use for fluid-restricted patients. Protect from light.", tableDoses:[5,10,20,30,40,50,60,80,100,120,150,200] },
-    ]
-  },
+  // ── VASOPRESSORS & INOTROPES ──────────────────────
+  { cat:"vasopressors", name:"Noradrenaline", preparations:[
+    { label:"Standard — 4mg / 50ml NS",    conc:80,   unit:"mcg/kg/min", doseMin:0.01, doseMax:1.0,  defaultDose:0.1,   notes:"First-line vasopressor in septic shock. Titrate to MAP ≥ 65 mmHg.", tableDoses:[0.01,0.02,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0] },
+    { label:"High Conc — 8mg / 50ml NS",   conc:160,  unit:"mcg/kg/min", doseMin:0.01, doseMax:1.0,  defaultDose:0.1,   notes:"Use in fluid-restricted patients. Same dose range, half the volume.", tableDoses:[0.01,0.02,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0] },
+  ]},
+  { cat:"vasopressors", name:"Adrenaline (Epinephrine)", preparations:[
+    { label:"4mg / 50ml NS",               conc:80,   unit:"mcg/kg/min", doseMin:0.01, doseMax:1.0,  defaultDose:0.1,   notes:"Monitor HR and arrhythmias. High doses cause lactic acidosis.", tableDoses:[0.01,0.02,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0] },
+  ]},
+  { cat:"vasopressors", name:"Vasopressin ⚠", preparations:[
+    { label:"20 Units / 50ml NS",          conc:0.4,  unit:"units/min",  doseMin:0.01, doseMax:0.04, defaultDose:0.02,  notes:"⚠ NOT weight-based. Fixed dose. Used as adjunct to noradrenaline in refractory shock.", tableDoses:[0.01,0.02,0.03,0.04] },
+  ]},
+  { cat:"vasopressors", name:"Dopamine", preparations:[
+    { label:"200mg / 50ml NS",             conc:4000, unit:"mcg/kg/min", doseMin:2,    doseMax:20,   defaultDose:5,     notes:"Dose-dependent: <5 dopaminergic, 5–10 beta, >10 alpha. Monitor arrhythmias.", tableDoses:[2,3,4,5,6,7,8,10,12,14,16,18,20] },
+  ]},
+  { cat:"vasopressors", name:"Dobutamine", preparations:[
+    { label:"250mg / 50ml NS",             conc:5000, unit:"mcg/kg/min", doseMin:2,    doseMax:20,   defaultDose:5,     notes:"Positive inotrope. Titrate to cardiac output. May cause hypotension and tachyarrhythmias.", tableDoses:[2,3,4,5,6,7,8,10,12,15,18,20] },
+  ]},
+  { cat:"vasopressors", name:"Phenylephrine", preparations:[
+    { label:"10mg / 50ml NS",              conc:200,  unit:"mcg/kg/min", doseMin:0.5,  doseMax:6.0,  defaultDose:1.0,   notes:"Pure alpha-agonist. No chronotropic effect. May cause reflex bradycardia.", tableDoses:[0.5,0.75,1.0,1.5,2.0,2.5,3.0,4.0,5.0,6.0] },
+  ]},
+  { cat:"vasopressors", name:"Milrinone", preparations:[
+    { label:"Standard — 50mg / 50ml NS",   conc:1000, unit:"mcg/kg/min", doseMin:0.25, doseMax:0.75, defaultDose:0.375, notes:"PDE-3 inhibitor. Optional load: 50 mcg/kg over 10 min. Reduce in renal impairment.", tableDoses:[0.25,0.30,0.375,0.40,0.50,0.625,0.75] },
+    { label:"Alternative — 20mg / 50ml NS",conc:400,  unit:"mcg/kg/min", doseMin:0.25, doseMax:0.75, defaultDose:0.375, notes:"Alternative dilution. Monitor BP and arrhythmias. Reduce dose in renal failure.", tableDoses:[0.25,0.30,0.375,0.40,0.50,0.625,0.75] },
+  ]},
+  { cat:"vasopressors", name:"Levosimendan 🆕", preparations:[
+    { label:"12.5mg / 250ml",              conc:50,   unit:"mcg/kg/min", doseMin:0.05, doseMax:0.2,  defaultDose:0.1,   notes:"Calcium sensitiser. Loading dose optional: 6–12 mcg/kg over 10 min. Monitor BP closely.", tableDoses:[0.05,0.075,0.1,0.125,0.15,0.175,0.2] },
+  ]},
+  { cat:"vasopressors", name:"Terlipressin 🆕 ⚠", preparations:[
+    { label:"1mg / 50ml NS",               conc:20,   unit:"mcg/min",    doseMin:1.3,  doseMax:2.6,  defaultDose:1.3,   notes:"⚠ NOT weight-based. Used in hepatorenal syndrome and variceal bleeding. Monitor Na⁺.", tableDoses:[1.3,1.5,1.8,2.0,2.3,2.6] },
+  ]},
+
+  // ── VASODILATORS ──────────────────────────────────
+  { cat:"vasodilators", name:"Nitroglycerin (NTG) ⚠", preparations:[
+    { label:"Standard — 25mg / 50ml D5W",  conc:500,  unit:"mcg/min",    doseMin:5,    doseMax:200,  defaultDose:50,    notes:"⚠ NOT weight-based. Use non-PVC tubing. Protect from light. Titrate to BP.", tableDoses:[5,10,20,30,40,50,60,80,100,120,150,200] },
+    { label:"High Conc — 50mg / 50ml D5W", conc:1000, unit:"mcg/min",    doseMin:5,    doseMax:200,  defaultDose:50,    notes:"⚠ NOT weight-based. High conc (1000 mcg/ml). For fluid-restricted patients. Protect from light.", tableDoses:[5,10,20,30,40,50,60,80,100,120,150,200] },
+  ]},
+  { cat:"vasodilators", name:"Nitroprusside 🆕", preparations:[
+    { label:"50mg / 250ml D5W",            conc:200,  unit:"mcg/kg/min", doseMin:0.3,  doseMax:5.0,  defaultDose:1.0,   notes:"⚠ Protect from light. Monitor for cyanide toxicity at doses >4 mcg/kg/min or >48hr. Measure thiocyanate levels.", tableDoses:[0.3,0.5,0.75,1.0,1.5,2.0,2.5,3.0,4.0,5.0] },
+  ]},
+  { cat:"vasodilators", name:"Nicardipine 🆕 ⚠", preparations:[
+    { label:"25mg / 250ml",                conc:0.1,  unit:"mg/hr",      doseMin:5,    doseMax:15,   defaultDose:5,     notes:"⚠ NOT weight-based. Calcium channel blocker. Titrate by 2.5 mg/hr every 5–15 min. Monitor BP.", tableDoses:[5,7.5,10,12.5,15] },
+  ]},
+  { cat:"vasodilators", name:"Labetalol 🆕 ⚠", preparations:[
+    { label:"200mg / 200ml NS",            conc:1,    unit:"mg/min",     doseMin:1,    doseMax:8,    defaultDose:2,     notes:"⚠ NOT weight-based. Alpha + beta blocker. Monitor HR and BP. Avoid in asthma and acute HF.", tableDoses:[1,2,3,4,5,6,7,8] },
+  ]},
+
+  // ── SEDATIVES ─────────────────────────────────────
+  { cat:"sedatives", name:"Propofol 🆕", preparations:[
+    { label:"Undiluted — 10mg/ml (1%)",    conc:10000,unit:"mcg/kg/min", doseMin:5,    doseMax:80,   defaultDose:20,    notes:"ICU sedation. Monitor triglycerides with prolonged use. Beware propofol infusion syndrome at >4 mg/kg/hr. Short T½ on stopping.", tableDoses:[5,10,15,20,25,30,40,50,60,70,80] },
+  ]},
+  { cat:"sedatives", name:"Midazolam 🆕", preparations:[
+    { label:"50mg / 50ml NS",              conc:1,    unit:"mg/kg/hr",   doseMin:0.02, doseMax:0.2,  defaultDose:0.05,  notes:"Benzodiazepine sedation. Accumulates in renal/hepatic failure and obesity. Titrate to RASS score.", tableDoses:[0.02,0.03,0.05,0.07,0.1,0.12,0.15,0.18,0.2] },
+  ]},
+  { cat:"sedatives", name:"Dexmedetomidine 🆕", preparations:[
+    { label:"200mcg / 50ml NS",            conc:4,    unit:"mcg/kg/hr",  doseMin:0.2,  doseMax:1.5,  defaultDose:0.5,   notes:"Alpha-2 agonist. No respiratory depression. May cause bradycardia and hypotension. Loading dose optional: 1 mcg/kg over 10 min.", tableDoses:[0.2,0.3,0.4,0.5,0.6,0.7,0.8,1.0,1.2,1.5] },
+  ]},
+
+  // ── ANALGESICS ────────────────────────────────────
+  { cat:"analgesics", name:"Fentanyl 🆕", preparations:[
+    { label:"500mcg / 50ml NS",            conc:10,   unit:"mcg/kg/hr",  doseMin:0.5,  doseMax:3.0,  defaultDose:1.0,   notes:"Opioid analgesic. Titrate to pain score. Adjust in renal failure. Monitor respiratory rate.", tableDoses:[0.5,0.75,1.0,1.25,1.5,2.0,2.5,3.0] },
+  ]},
+  { cat:"analgesics", name:"Morphine 🆕 ⚠", preparations:[
+    { label:"50mg / 50ml NS",              conc:1,    unit:"mg/hr",      doseMin:1,    doseMax:10,   defaultDose:2,     notes:"⚠ NOT weight-based. Avoid in renal failure (metabolite accumulation). Monitor respiratory rate and sedation level.", tableDoses:[1,2,3,4,5,6,7,8,9,10] },
+  ]},
+  { cat:"analgesics", name:"Ketamine 🆕", preparations:[
+    { label:"500mg / 50ml NS",             conc:10,   unit:"mg/kg/hr",   doseMin:0.1,  doseMax:2.0,  defaultDose:0.3,   notes:"Dissociative anaesthetic/analgesic. Preserves airway reflexes. May cause emergence phenomena. Useful in bronchospasm.", tableDoses:[0.1,0.2,0.3,0.5,0.75,1.0,1.5,2.0] },
+  ]},
+
+  // ── NEUROMUSCULAR BLOCKERS ────────────────────────
+  { cat:"nmb", name:"Atracurium 🆕", preparations:[
+    { label:"250mg / 50ml NS",             conc:5000, unit:"mcg/kg/min", doseMin:5,    doseMax:10,   defaultDose:5,     notes:"Non-depolarising NMB. Hoffman elimination — safe in organ failure. Monitor with train-of-four.", tableDoses:[5,6,7,8,9,10] },
+  ]},
+  { cat:"nmb", name:"Cisatracurium 🆕", preparations:[
+    { label:"100mg / 50ml NS",             conc:2000, unit:"mcg/kg/min", doseMin:1,    doseMax:3,    defaultDose:1.5,   notes:"Non-depolarising NMB. Hoffman elimination. Preferred in organ failure. Monitor train-of-four.", tableDoses:[1,1.5,2.0,2.5,3.0] },
+  ]},
+  { cat:"nmb", name:"Vecuronium 🆕", preparations:[
+    { label:"100mg / 50ml NS",             conc:2000, unit:"mcg/kg/min", doseMin:0.8,  doseMax:1.2,  defaultDose:1.0,   notes:"Non-depolarising NMB. Accumulates in hepatic failure. Monitor train-of-four. Reverse with neostigmine.", tableDoses:[0.8,0.9,1.0,1.1,1.2] },
+  ]},
+  { cat:"nmb", name:"Rocuronium 🆕", preparations:[
+    { label:"500mg / 50ml NS",             conc:10000,unit:"mcg/kg/min", doseMin:8,    doseMax:12,   defaultDose:10,    notes:"Non-depolarising NMB. Reversed by sugammadex. Hepatic elimination. Monitor train-of-four.", tableDoses:[8,9,10,11,12] },
+  ]},
+
+  // ── ANTIARRHYTHMICS ───────────────────────────────
+  { cat:"antiarrhythmics", name:"Amiodarone ⚡ ⚠", isAmiodarone:true, preparations:[
+    { label:"900mg / 500ml D5W — 24hr Protocol", conc:1.8, unit:"mg/min",
+      doseMin:0.5, doseMax:1.0, defaultDose:1.0,
+      notes:"⚠ Special 24hr phased protocol. NOT weight-based. Use D5W only. Central line preferred. Monitor QTc, LFTs, TFTs, BP. Phase 1: 1 mg/min × 6hr (=360mg). Phase 2: 0.5 mg/min × 18hr (=540mg). Total = 900mg.",
+      tableDoses:[] },
+  ]},
+  { cat:"antiarrhythmics", name:"Lidocaine 🆕 ⚠", preparations:[
+    { label:"1g / 250ml NS",               conc:4,    unit:"mg/min",     doseMin:1,    doseMax:4,    defaultDose:2,     notes:"⚠ NOT weight-based. Loading dose: 1–1.5 mg/kg IV bolus. Reduce in hepatic failure and heart failure. Monitor for toxicity (seizures, arrhythmias).", tableDoses:[1,1.5,2.0,2.5,3.0,3.5,4.0] },
+  ]},
+  { cat:"antiarrhythmics", name:"Esmolol 🆕", preparations:[
+    { label:"2500mg / 250ml NS",           conc:10000,unit:"mcg/kg/min", doseMin:50,   doseMax:300,  defaultDose:100,   notes:"Ultra short-acting beta-blocker. Loading dose: 500 mcg/kg over 1 min. Titrate by 50 mcg/kg/min every 4 min. Monitor HR and BP.", tableDoses:[50,75,100,125,150,175,200,250,300] },
+  ]},
+
+  // ── OTHERS ───────────────────────────────────────
+  { cat:"others", name:"Heparin 🆕", preparations:[
+    { label:"25,000 U / 50ml NS",          conc:500,  unit:"units/kg/hr",doseMin:12,   doseMax:18,   defaultDose:15,    notes:"Adjust dose based on aPTT or Anti-Xa. Check aPTT 6 hrs after any dose change. Monitor for HIT.", tableDoses:[12,13,14,15,16,17,18] },
+  ]},
+  { cat:"others", name:"Regular Insulin 🆕", preparations:[
+    { label:"50 Units / 50ml NS",          conc:1,    unit:"units/kg/hr",doseMin:0.05, doseMax:0.1,  defaultDose:0.05,  notes:"Adjust based on blood glucose monitoring. Check glucose hourly when initiating. Monitor potassium.", tableDoses:[0.05,0.06,0.07,0.08,0.09,0.1] },
+  ]},
+  { cat:"others", name:"Furosemide 🆕 ⚠", preparations:[
+    { label:"250mg / 25ml NS",             conc:10,   unit:"mg/hr",      doseMin:2.5,  doseMax:20,   defaultDose:5,     notes:"⚠ NOT weight-based. Monitor urine output, electrolytes (K⁺, Na⁺, Mg²⁺). Adjust dose per response.", tableDoses:[2.5,5,7.5,10,12.5,15,17.5,20] },
+  ]},
+  { cat:"others", name:"Octreotide 🆕 ⚠", preparations:[
+    { label:"500mcg / 50ml NS",            conc:10,   unit:"mcg/hr",     doseMin:25,   doseMax:50,   defaultDose:25,    notes:"⚠ NOT weight-based. Used for variceal bleeding and refractory hypoglycaemia. Monitor glucose.", tableDoses:[25,30,35,40,45,50] },
+  ]},
+  { cat:"others", name:"Aminophylline 🆕", preparations:[
+    { label:"250mg / 500ml NS or D5W",     conc:0.5,  unit:"mg/kg/hr",   doseMin:0.1,  doseMax:0.7,  defaultDose:0.3,   notes:"Adjust dose by serum theophylline levels (target 10–20 mg/L). Reduce in elderly, hepatic failure, and heart failure. Loading dose: 5 mg/kg over 30 min (if not already on theophylline).", tableDoses:[0.1,0.2,0.3,0.4,0.5,0.6,0.7] },
+  ]},
 ];
 
 // ══════════════════════════════════════════
-//  INIT
+//  RATE CALCULATION
 // ══════════════════════════════════════════
+function calcRate(dose, weight, prep) {
+  const c = prep.conc, u = prep.unit;
+  if (u === 'mcg/kg/min') return dose * weight * 60 / c;
+  if (u === 'mg/kg/hr')   return dose * weight / c;
+  if (u === 'mcg/kg/hr')  return dose * weight / c;
+  if (u === 'units/kg/hr')return dose * weight / c;
+  if (u === 'mg/min')     return dose / c * 60;
+  if (u === 'mcg/min')    return dose / c * 60;
+  if (u === 'mg/hr')      return dose / c;
+  if (u === 'mcg/hr')     return dose / c;
+  if (u === 'units/min')  return dose / c * 60;
+  return 0;
+}
+
+function isWeightBased(unit) { return unit.includes('/kg'); }
+
+function absLabel(dose, weight, prep) {
+  if (!isWeightBased(prep.unit)) return dose + ' ' + prep.unit;
+  const abs = dose * weight;
+  if (prep.unit.includes('mcg'))    return abs.toFixed(1) + ' mcg/' + (prep.unit.includes('min')?'min':'hr');
+  if (prep.unit.includes('mg'))     return abs.toFixed(2) + ' mg/' + (prep.unit.includes('min')?'min':'hr');
+  if (prep.unit.includes('units'))  return abs.toFixed(2) + ' units/hr';
+  return abs.toFixed(2);
+}
+
+function concLabel(prep) {
+  const u = prep.unit;
+  const c = prep.conc;
+  if (u.includes('mcg'))   return c + ' mcg/ml';
+  if (u === 'mg/kg/hr' || u === 'mg/min' || u === 'mg/hr') return c + ' mg/ml';
+  if (u.includes('units')) return c + ' U/ml';
+  return c;
+}
+
+// ══════════════════════════════════════════
+//  BUILD SELECTORS
+// ══════════════════════════════════════════
+const catSel  = document.getElementById('catSel');
 const drugSel = document.getElementById('drugSel');
 const prepSel = document.getElementById('prepSel');
 
-DRUGS.forEach((d,i) => {
+CATEGORIES.forEach(c => {
   const o = document.createElement('option');
-  o.value = i; o.textContent = d.name;
-  drugSel.appendChild(o);
+  o.value = c.key; o.textContent = c.label;
+  catSel.appendChild(o);
 });
 
+function onCatChange() {
+  const cat = catSel.value;
+  drugSel.innerHTML = '';
+  DRUGS.filter(d => d.cat === cat).forEach((d, i) => {
+    const o = document.createElement('option');
+    o.value = i; o.textContent = d.name;
+    drugSel.appendChild(o);
+  });
+  onDrugChange();
+}
+
+function currentDrug() {
+  const cat = catSel.value;
+  const idx = parseInt(drugSel.value);
+  return DRUGS.filter(d => d.cat === cat)[idx];
+}
+
 function onDrugChange() {
-  const drug = DRUGS[drugSel.value];
+  const drug = currentDrug();
+  if (!drug) return;
   prepSel.innerHTML = '';
-  drug.preparations.forEach((p,i) => {
+  drug.preparations.forEach((p, i) => {
     const o = document.createElement('option');
     o.value = i; o.textContent = p.label;
     prepSel.appendChild(o);
@@ -354,14 +569,22 @@ function onDrugChange() {
 }
 
 function onPrepChange() {
-  const prep = currentPrep();
-  document.getElementById('dose').value     = prep.defaultDose;
-  document.getElementById('doseUnit').value = prep.unit;
-  calculate();
-}
+  const drug = currentDrug();
+  if (!drug) return;
+  const prep = drug.preparations[prepSel.value];
 
-function currentPrep() {
-  return DRUGS[drugSel.value].preparations[prepSel.value];
+  // Toggle amiodarone special vs normal view
+  const isAmio = !!drug.isAmiodarone;
+  document.getElementById('normalDoseRow').style.display  = isAmio ? 'none' : 'grid';
+  document.getElementById('normalResult').style.display   = isAmio ? 'none' : 'block';
+  document.getElementById('amioResult').style.display     = isAmio ? 'block' : 'none';
+
+  if (!isAmio) {
+    document.getElementById('dose').value     = prep.defaultDose;
+    document.getElementById('doseUnit').value = prep.unit;
+    calculate();
+  }
+  document.getElementById('drugNotes').textContent = 'ℹ  ' + prep.notes;
 }
 
 // ══════════════════════════════════════════
@@ -370,33 +593,26 @@ function currentPrep() {
 function calculate() {
   const weight = parseFloat(document.getElementById('weight').value);
   const dose   = parseFloat(document.getElementById('dose').value);
-  const prep   = currentPrep();
+  const drug   = currentDrug();
+  if (!drug || drug.isAmiodarone) return;
+  const prep   = drug.preparations[prepSel.value];
   const rateEl = document.getElementById('rateDisplay');
 
   if (isNaN(weight) || isNaN(dose) || weight <= 0 || dose <= 0) {
     rateEl.textContent = '—'; rateEl.className = 'result-rate'; return;
   }
 
-  let rate, absDose;
-  if (prep.weightBased) {
-    rate    = dose * weight * 60 / prep.conc;
-    absDose = (dose * weight).toFixed(2) + ' mcg/min';
-  } else {
-    rate    = dose / prep.conc * 60;
-    absDose = dose + ' ' + prep.unit;
-  }
-
+  const rate = calcRate(dose, weight, prep);
   rateEl.textContent = rate.toFixed(2);
 
-  const concLabel = prep.unit === 'units/min' ? prep.conc + ' U/ml' : prep.conc + ' mcg/ml';
-  document.getElementById('infoConc').textContent   = concLabel;
-  document.getElementById('infoDose').textContent   = absDose;
+  document.getElementById('infoConc').textContent   = concLabel(prep);
+  document.getElementById('infoDose').textContent   = absLabel(dose, weight, prep);
   document.getElementById('infoRange').textContent  = prep.doseMin + '–' + prep.doseMax;
   document.getElementById('infoWeight').textContent = weight.toFixed(1) + ' kg';
 
   const pct = Math.min(Math.max((dose - prep.doseMin) / (prep.doseMax - prep.doseMin), 0), 1);
-  document.getElementById('rangeBar').style.width   = (pct * 100) + '%';
-  document.getElementById('rangePct').textContent   = Math.round(pct * 100) + '%';
+  document.getElementById('rangeBar').style.width  = (pct * 100) + '%';
+  document.getElementById('rangePct').textContent  = Math.round(pct * 100) + '%';
 
   const alertEl = document.getElementById('doseAlert');
   if (dose < prep.doseMin) {
@@ -423,41 +639,128 @@ function calculate() {
 //  REFERENCE TABLES
 // ══════════════════════════════════════════
 const WEIGHTS = [50, 60, 70, 80, 90, 100];
+let activeRefCat = 'all';
 
 function buildRefTables() {
+  // Build filter buttons
+  const filterDiv = document.getElementById('refFilter');
+  if (!filterDiv.hasChildNodes()) {
+    const allBtn = document.createElement('div');
+    allBtn.className = 'ref-filter-btn active';
+    allBtn.textContent = 'All';
+    allBtn.onclick = () => { activeRefCat = 'all'; updateRefFilter(); renderRefTables(); };
+    filterDiv.appendChild(allBtn);
+
+    CATEGORIES.forEach(c => {
+      const btn = document.createElement('div');
+      btn.className = 'ref-filter-btn';
+      btn.textContent = c.label.split(' ')[0]; // short label
+      btn.onclick = () => { activeRefCat = c.key; updateRefFilter(); renderRefTables(); };
+      filterDiv.appendChild(btn);
+    });
+  }
+  renderRefTables();
+}
+
+function updateRefFilter() {
+  const btns = document.querySelectorAll('.ref-filter-btn');
+  btns.forEach((b, i) => {
+    const isAll  = i === 0;
+    const catKey = i === 0 ? 'all' : CATEGORIES[i-1].key;
+    b.classList.toggle('active', catKey === activeRefCat);
+  });
+}
+
+function renderRefTables() {
   const container = document.getElementById('refContent');
   container.innerHTML = '';
 
-  DRUGS.forEach(drug => {
+  const drugsToShow = DRUGS.filter(d => activeRefCat === 'all' || d.cat === activeRefCat);
+  let lastCat = '';
+
+  drugsToShow.forEach(drug => {
+    // Section header
+    if (drug.cat !== lastCat) {
+      lastCat = drug.cat;
+      const sh = document.createElement('div');
+      sh.className = 'ref-section-hdr';
+      sh.textContent = CATEGORIES.find(c => c.key === drug.cat)?.label || drug.cat;
+      container.appendChild(sh);
+    }
+
     drug.preparations.forEach(prep => {
+      if (drug.isAmiodarone) {
+        // Special amiodarone card
+        const wrap = document.createElement('div');
+        wrap.style.marginBottom = '14px';
+        const r1 = (1 / 1.8 * 60).toFixed(2);
+        const r2 = (0.5 / 1.8 * 60).toFixed(2);
+        wrap.innerHTML = `
+          <div class="ref-drug-header">
+            <h3>${drug.name}</h3>
+            <p>${prep.label}</p>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-top:none;border-radius:0 0 14px 14px;padding:14px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div style="background:rgba(0,180,216,0.1);border:1.5px solid rgba(0,180,216,0.3);border-radius:12px;padding:12px;text-align:center;">
+                <div style="font-size:9px;font-weight:800;color:var(--accent);letter-spacing:1px;margin-bottom:4px;">PHASE 1 · 6 HOURS</div>
+                <div style="font-family:var(--font-num);font-size:26px;font-weight:700;color:var(--accent);">${r1}</div>
+                <div style="font-size:10px;color:var(--muted);">ml/hr</div>
+                <div style="font-size:10px;color:var(--muted);margin-top:4px;">1 mg/min → 360 mg</div>
+              </div>
+              <div style="background:rgba(255,171,64,0.1);border:1.5px solid rgba(255,171,64,0.3);border-radius:12px;padding:12px;text-align:center;">
+                <div style="font-size:9px;font-weight:800;color:var(--amber);letter-spacing:1px;margin-bottom:4px;">PHASE 2 · 18 HOURS</div>
+                <div style="font-family:var(--font-num);font-size:26px;font-weight:700;color:var(--amber);">${r2}</div>
+                <div style="font-size:10px;color:var(--muted);">ml/hr</div>
+                <div style="font-size:10px;color:var(--muted);margin-top:4px;">0.5 mg/min → 540 mg</div>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--muted);margin-top:10px;padding:8px;background:rgba(255,171,64,0.06);border-radius:8px;">
+              ⚠ 900mg in 500ml D5W | Conc: 1.8 mg/ml | Total: 900mg over 24hr | NOT weight-based
+            </div>
+          </div>`;
+        container.appendChild(wrap);
+        return;
+      }
+
+      if (!prep.tableDoses || !prep.tableDoses.length) return;
+
       const wrap = document.createElement('div');
-      wrap.style.marginBottom = '20px';
+      wrap.style.marginBottom = '14px';
 
       const hdr = document.createElement('div');
       hdr.className = 'ref-drug-header';
-      const concLabel = prep.unit === 'units/min' ? prep.conc + ' units/ml' : prep.conc + ' mcg/ml';
       hdr.innerHTML = `<h3>${drug.name}</h3>
-        <p>${prep.label} · ${concLabel} · Range: ${prep.doseMin}–${prep.doseMax} ${prep.unit}</p>`;
+        <p>${prep.label} · ${concLabel(prep)} · Range: ${prep.doseMin}–${prep.doseMax} ${prep.unit}</p>`;
       wrap.appendChild(hdr);
 
       const tw = document.createElement('div');
       tw.className = 'ref-table-wrap';
       const tbl = document.createElement('table');
 
+      const wbased = isWeightBased(prep.unit);
       let thead = `<tr><th>Dose (${prep.unit})</th>`;
-      WEIGHTS.forEach(w => thead += `<th>${w}kg<br/>ml/hr</th>`);
+      if (wbased) {
+        WEIGHTS.forEach(w => thead += `<th>${w}kg<br/>ml/hr</th>`);
+      } else {
+        thead += `<th>Rate (ml/hr)</th>`;
+      }
       thead += '</tr>';
       tbl.innerHTML = `<thead>${thead}</thead>`;
 
       const tbody = document.createElement('tbody');
       prep.tableDoses.forEach(dose => {
-        let row = `<tr><td>${dose < 1 ? dose.toFixed(3).replace(/\.?0+$/,'') : dose}</td>`;
-        WEIGHTS.forEach(wt => {
-          const rate = prep.weightBased
-            ? dose * wt * 60 / prep.conc
-            : dose / prep.conc * 60;
-          row += `<td>${rate.toFixed(2)}</td>`;
-        });
+        const doseLabel = dose < 1 ? dose.toFixed(3).replace(/\.?0+$/,'') : (Number.isInteger(dose) ? dose : dose.toFixed(2).replace(/\.?0+$/,''));
+        let row = `<tr><td>${doseLabel}</td>`;
+        if (wbased) {
+          WEIGHTS.forEach(wt => {
+            const rate = calcRate(dose, wt, prep);
+            row += `<td>${rate.toFixed(2)}</td>`;
+          });
+        } else {
+          const rate = calcRate(dose, 0, prep);
+          row += `<td style="font-weight:700;color:var(--green);">${rate.toFixed(2)}</td>`;
+        }
         row += '</tr>';
         tbody.innerHTML += row;
       });
@@ -478,10 +781,13 @@ function showPage(id, tab) {
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   tab.classList.add('active');
-  if (id === 'ref' && !document.getElementById('refContent').hasChildNodes()) buildRefTables();
+  if (id === 'ref') buildRefTables();
 }
 
-onDrugChange();
+// ══════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════
+onCatChange();
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
