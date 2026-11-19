@@ -296,6 +296,7 @@
       🆕 <b style="color:var(--text);">Amiodarone</b> — special 24hr phased protocol<br/>
       🆕 <b style="color:var(--text);">Category filter</b> in Calculator &amp; Reference tabs<br/>
       🆕 <b style="color:var(--text);">Multi-unit support</b> — mg/kg/hr, mcg/kg/hr, mg/min, mg/hr, units/kg/hr<br/>
+      🆕 <b style="color:var(--text);">Vasopressin</b> — added 40 U / 40 ml dilution (1 U/ml)<br/>
       ✅ All v2.0 drugs kept unchanged
     </div>
   </div>
@@ -385,6 +386,7 @@ const DRUGS = [
   ]},
   { cat:"vasopressors", name:"Vasopressin ⚠", preparations:[
     { label:"20 Units / 50ml NS",          conc:0.4,  unit:"units/min",  doseMin:0.01, doseMax:0.04, defaultDose:0.02,  notes:"⚠ NOT weight-based. Fixed dose. Used as adjunct to noradrenaline in refractory shock.", tableDoses:[0.01,0.02,0.03,0.04] },
+    { label:"40 Units / 40ml NS",          conc:1,    unit:"units/min",  doseMin:0.01, doseMax:0.04, defaultDose:0.02,  notes:"⚠ NOT weight-based. Fixed dose. Concentration 1 U/ml. Used as adjunct to noradrenaline in refractory shock.", tableDoses:[0.01,0.02,0.03,0.04] },
   ]},
   { cat:"vasopressors", name:"Dopamine", preparations:[
     { label:"200mg / 50ml NS",             conc:4000, unit:"mcg/kg/min", doseMin:2,    doseMax:20,   defaultDose:5,     notes:"Dose-dependent: <5 dopaminergic, 5–10 beta, >10 alpha. Monitor arrhythmias.", tableDoses:[2,3,4,5,6,7,8,10,12,14,16,18,20] },
